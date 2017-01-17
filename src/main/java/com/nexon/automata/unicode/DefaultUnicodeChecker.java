@@ -8,7 +8,7 @@ import java.io.UnsupportedEncodingException;
  * Created by chan8 on 2017-01-10.
  */
 public class DefaultUnicodeChecker implements UnicodeChecker {
-    
+
     private final int START_OF_KOREAN = 0xAC00;
     private final int END_OF_KOREAN = 0xD74F;
     
@@ -19,8 +19,8 @@ public class DefaultUnicodeChecker implements UnicodeChecker {
         
         return false;
     }
+    
 
-    @Override
     public String[] isKorean(String koString, Divisor divisor) {
         String[] ret = new String[2];
 
@@ -53,4 +53,5 @@ public class DefaultUnicodeChecker implements UnicodeChecker {
         ret[0] = "FALSE";
         return ret;
     }
+    
 }

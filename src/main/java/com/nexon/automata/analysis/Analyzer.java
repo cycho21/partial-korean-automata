@@ -8,5 +8,5 @@ import com.nexon.automata.exception.KoreanException;
 public interface Analyzer {
     
     String analyze(String inputString) throws KoreanException;
-    
+
 }

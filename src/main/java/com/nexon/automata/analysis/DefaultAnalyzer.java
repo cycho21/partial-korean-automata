@@ -24,27 +24,26 @@ public class DefaultAnalyzer implements Analyzer {
     private final int FML = 5;
     private final int FMLL = 6;
     private final int FF = 7;
-
-    private ArrayDeque<KoreanBean> completedDeque;
-    private ArrayDeque<Character> uncompletedDeque;
     private int status = INIT;
+
+    private StringBuilder stringBuilder;
     private UnicodeChecker unicodeChecker;
     private Divisor divisor;
 
     public DefaultAnalyzer() {
     }
-
+    
     @Override
     public String analyze(String inputString) throws KoreanException {
-        completedDeque = new ArrayDeque<KoreanBean>();
-        uncompletedDeque = new ArrayDeque<Character>();
+        ArrayDeque<KoreanBean> completedDeque = new ArrayDeque<KoreanBean>();
+        ArrayDeque<Character> uncompletedDeque = new ArrayDeque<Character>();
+        stringBuilder = new StringBuilder();
 
         status = INIT;
         int length = inputString.length();
         char lastChar = 0;
         int idx = 0;
 
-        StringBuilder stringBuilder = new StringBuilder();
         String[] retArr = new String[2];
 
         while (idx < length) {
@@ -67,7 +66,7 @@ public class DefaultAnalyzer implements Analyzer {
                     switch (status) {
 
                         case FAILURE:
-                            failure(lastChar);
+                            failure(lastChar, uncompletedDeque, completedDeque);
                             break;
 
                         case INIT:
@@ -91,8 +90,7 @@ public class DefaultAnalyzer implements Analyzer {
 
                         case FF: // ㄲ
                             if (isConsonant) {
-                                printError();
-                                System.exit(1);
+                                throw new KoreanException("INVALID KOREAN STRING");
                             } else {
                                 uncompletedDeque.offerLast(nowChar);
                                 status = FFM;
@@ -114,18 +112,18 @@ public class DefaultAnalyzer implements Analyzer {
                                 uncompletedDeque.offerLast(nowChar);
                                 status = FFML;
                             } else {
-                                throw new KoreanException();
+                                throw new KoreanException("INVALID KOREAN STRING");
                             }
                             break;
 
                         case FFML: // 끅
                             if (isConsonant) { // 끆
                                 uncompletedDeque.offerLast(nowChar);
-                                makeCompleteCharacter(uncompletedDeque, stringBuilder, completedDeque);
+                                makeCompleteCharacter(uncompletedDeque, completedDeque);
                                 status = INIT;
                             } else { // 끄그
                                 Character tempChar = uncompletedDeque.pollLast();
-                                makeCompleteCharacter(uncompletedDeque, stringBuilder, completedDeque);
+                                makeCompleteCharacter(uncompletedDeque, completedDeque);
                                 uncompletedDeque.offerLast(tempChar);
                                 uncompletedDeque.offerLast(nowChar);
                                 status = FM;
@@ -135,18 +133,18 @@ public class DefaultAnalyzer implements Analyzer {
                         case FMLL: // 귺
                             lastChar = nowChar;
                             uncompletedDeque.offerLast(nowChar);
-                            makeCompleteCharacter(uncompletedDeque, stringBuilder, completedDeque);
+                            makeCompleteCharacter(uncompletedDeque, completedDeque);
                             status = INIT;
                             break;
 
                         case FML: // 극
                             if (isConsonant) {
                                 uncompletedDeque.offerLast(nowChar);
-                                makeCompleteCharacter(uncompletedDeque, stringBuilder, completedDeque);
+                                makeCompleteCharacter(uncompletedDeque, completedDeque);
                                 status = INIT;
                             } else {
                                 Character tempChar = uncompletedDeque.pollLast();
-                                makeCompleteCharacter(uncompletedDeque, stringBuilder, completedDeque);
+                                makeCompleteCharacter(uncompletedDeque, completedDeque);
                                 uncompletedDeque.offerLast(tempChar);
                                 uncompletedDeque.offerLast(nowChar);
                                 status = FM;
@@ -161,10 +159,10 @@ public class DefaultAnalyzer implements Analyzer {
             if (status != FAILURE)
                 idx++;
         }
-        return postProcess(stringBuilder);
+        return postProcess(uncompletedDeque, completedDeque);
     }
 
-    private String postProcess(StringBuilder stringBuilder) {
+    private String postProcess(ArrayDeque<Character> uncompletedDeque, ArrayDeque<KoreanBean> completedDeque) {
         while (!uncompletedDeque.isEmpty()) {
             stringBuilder.append(uncompletedDeque.poll());
         }
@@ -176,10 +174,11 @@ public class DefaultAnalyzer implements Analyzer {
 
         stringBuilder.setLength(0);
 
-        return printResult(stringBuilder);
+        return printResult(stringBuilder, uncompletedDeque, completedDeque);
     }
 
-    private String printResult(StringBuilder stringBuilder) {
+    private String printResult(StringBuilder stringBuilder, ArrayDeque<Character> uncompletedDeque, 
+                               ArrayDeque<KoreanBean> completedDeque) {
         stringBuilder.append("OUTPUT : ");
         String result = "";
         while (!completedDeque.isEmpty()) {
@@ -194,12 +193,7 @@ public class DefaultAnalyzer implements Analyzer {
         return stringBuilder.toString();
     }
 
-    private void printError() {
-        System.out.println("INVALID KOREAN STRING");
-    }
-
-    private void makeCompleteCharacter(ArrayDeque<Character> uncompletedDeque,
-                                       StringBuilder stringBuilder, ArrayDeque<KoreanBean> completedDeque) {
+    private void makeCompleteCharacter(ArrayDeque<Character> uncompletedDeque, ArrayDeque<KoreanBean> completedDeque) {
         while (!uncompletedDeque.isEmpty()) {
             stringBuilder.append(uncompletedDeque.pollFirst());
         }
@@ -213,7 +207,7 @@ public class DefaultAnalyzer implements Analyzer {
         stringBuilder.setLength(0);
     }
 
-    private void failure(char lastChar) {
+    private void failure(char lastChar, ArrayDeque<Character> uncompletedDeque, ArrayDeque<KoreanBean> completedDeque) throws KoreanException {
         KoreanBean lastSyllable = completedDeque.pollLast();
         String code = lastSyllable.getCode();
         String[] ret = unicodeChecker.isKorean(code.substring(0, code.length() - 1), divisor);
@@ -223,7 +217,7 @@ public class DefaultAnalyzer implements Analyzer {
             uncompletedDeque.offerLast((char) code.codePointAt(code.length() - 1));
             uncompletedDeque.offerLast(lastChar);
         } else {
-            printError();
+            throw new KoreanException("INVALID KOREAN STRING");
         }
 
         if (unicodeChecker.isConsonant(lastChar))

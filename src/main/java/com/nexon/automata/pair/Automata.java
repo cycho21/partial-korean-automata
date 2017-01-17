@@ -4,6 +4,8 @@ import com.nexon.automata.analysis.DefaultAnalyzer;
 import com.nexon.automata.divide.Divisor;
 import com.nexon.automata.exception.KoreanException;
 import com.nexon.automata.unicode.DefaultUnicodeChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by chan8 on 2017-01-11.
@@ -11,6 +13,7 @@ import com.nexon.automata.unicode.DefaultUnicodeChecker;
 public class Automata {
 
     private DefaultAnalyzer defaultAnalyzer;
+    private Logger logger = LoggerFactory.getLogger(DefaultAnalyzer.class);
 
     public void initialize() {
         defaultAnalyzer = new DefaultAnalyzer();
@@ -22,8 +25,9 @@ public class Automata {
         try {
             return defaultAnalyzer.analyze(input);
         } catch (KoreanException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return "INVALID KOREAN STRING";
     }
+    
 }

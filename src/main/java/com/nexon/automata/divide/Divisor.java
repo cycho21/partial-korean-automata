@@ -10,7 +10,7 @@ public class Divisor implements Dividable {
         int length = koString.length();
         int[] ret = new int[3];
         int idx = 0;
-
+        
         while (koString.charAt(idx) >= 'A' && koString.charAt(idx) <= 'Z')
             idx++;
 
