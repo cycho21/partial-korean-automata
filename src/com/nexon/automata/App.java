@@ -11,7 +11,6 @@ public class App {
         new App();
     }
 
-
     public App() {
         Automata automata = new Automata();
         automata.initialize();
