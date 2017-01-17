@@ -189,8 +189,8 @@ public class DefaultAnalyzer implements Analyzer {
             if (completedDeque.size() != 0)
                 stringBuilder.append(", ");
         }
-            stringBuilder.append(" (" + result + ")");
-        
+        stringBuilder.append(" (" + result + ")");
+
         return stringBuilder.toString();
     }
 
