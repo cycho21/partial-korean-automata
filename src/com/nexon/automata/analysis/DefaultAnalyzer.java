@@ -172,13 +172,25 @@ public class DefaultAnalyzer implements Analyzer {
         String[] ret = unicodeChecker.isKorean(stringBuilder.toString(), divisor);
 
         if (!ret[0].equals("FALSE"))
-            completedDeque.offerLast(new KoreanBean(ret[0]));
+            completedDeque.offerLast(new KoreanBean(ret[0], stringBuilder.toString()));
 
         stringBuilder.setLength(0);
 
-        while (!completedDeque.isEmpty())
-            stringBuilder.append(completedDeque.pollFirst().getValue());
+        return printResult(stringBuilder);
+    }
 
+    private String printResult(StringBuilder stringBuilder) {
+        stringBuilder.append("OUTPUT : ");
+        String result = "";
+        while (!completedDeque.isEmpty()) {
+            KoreanBean pollFirst = completedDeque.pollFirst();
+            result += pollFirst.getValue();
+            stringBuilder.append(pollFirst.getCode());
+            if (completedDeque.size() != 0)
+                stringBuilder.append(", ");
+        }
+            stringBuilder.append(" (" + result + ")");
+        
         return stringBuilder.toString();
     }
 
