@@ -17,7 +17,7 @@ public class App {
         System.out.println(automata.analyze("A3A4E1"));
         System.out.println(automata.analyze("E4DE1BC4"));
         System.out.println(automata.analyze("E1DAC1"));
-        System.out.println(automata.analyze("CC1B5E"));
+        System.out.println(automata.analyze("CC1 B5E"));
         System.out.println(automata.analyze("E1DAA//E1DAA4B1"));
         System.out.println(automata.analyze("A31E"));
     }
