@@ -56,7 +56,7 @@ public class DefaultAnalyzer implements Analyzer {
             switch (nowChar) {
 
                 case WHITE_SPACE:
-                    
+
                     if (!uncompletedDeque.isEmpty()) {
                         makeCompleteCharacter(uncompletedDeque, completedDeque);
                         completedDeque.offerLast(new KoreanBean(" ", " "));
@@ -183,8 +183,8 @@ public class DefaultAnalyzer implements Analyzer {
 
         if (!ret[0].equals("FALSE"))
             completedDeque.offerLast(new KoreanBean(ret[0], stringBuilder.toString()));
-        
-            stringBuilder.setLength(0);
+
+        stringBuilder.setLength(0);
 
         return printResult(stringBuilder, uncompletedDeque, completedDeque);
     }
@@ -193,7 +193,7 @@ public class DefaultAnalyzer implements Analyzer {
                                ArrayDeque<KoreanBean> completedDeque) {
         stringBuilder.append("OUTPUT : ");
         String result = "";
-        
+
         while (!completedDeque.isEmpty()) {
             KoreanBean pollFirst = completedDeque.pollFirst();
             result += pollFirst.getValue();
@@ -219,7 +219,8 @@ public class DefaultAnalyzer implements Analyzer {
         stringBuilder.setLength(0);
     }
 
-    private void failure(char lastChar, ArrayDeque<Character> uncompletedDeque, ArrayDeque<KoreanBean> completedDeque) throws KoreanException {
+    private void failure(char lastChar, ArrayDeque<Character> uncompletedDeque, ArrayDeque<KoreanBean> completedDeque)
+            throws KoreanException {
         KoreanBean lastSyllable = completedDeque.pollLast();
         String code = lastSyllable.getCode();
         String[] ret = unicodeChecker.isKorean(code.substring(0, code.length() - 1), divisor);
